@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Catálogo - Papeleria Santa Fé</title>
+  <meta name="description" content="Catálogo completo de produtos Papeleria Santa Fé">
+  <link rel="stylesheet" href="/styles/global.css">
+</head>
+<body>
+  <header>
+    <div class="header-content">
+      <a href="/" class="logo">
+        <div class="logo-icon">📝</div>
+        Papeleria Santa Fé
+      </a>
+      <nav id="mainNav">
+        <a href="/">Início</a>
+        <a href="/catalog.html">📦 Catálogo</a>
+        <a href="/services.html">🛠️ Serviços</a>
+        <a href="/contact.html">📞 Contato</a>
+        <a href="/cart.html">🛒 Carrinho<span class="cart-badge" id="cartCount">0</span></a>
+        <a href="/login.html" id="authLink">Entrar</a>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+    <div class="hero" style="padding: 40px 20px;">
+      <div class="container">
+        <h1>Catálogo de Produtos</h1>
+        <p>Buscar produtos</p>
+      </div>
+    </div>
+
+    <section class="products-section">
+      <div class="container">
+        <div class="filters">
+          <div class="search-box">
+            <input type="text" id="searchInput" placeholder="Buscar produtos...">
+          </div>
+          <div class="filter-buttons">
+            <button class="filter-btn active" data-category="Todos">Todos</button>
+            <button class="filter-btn" data-category="Escola">Escola</button>
+            <button class="filter-btn" data-category="Escritório">Escritório</button>
+            <button class="filter-btn" data-category="Arte">Arte</button>
+            <button class="filter-btn" data-category="Papel">Papel</button>
+            <button class="filter-btn" data-category="Informática">Informática</button>
+            <button class="filter-btn" data-category="Escrita">Escrita</button>
+          </div>
+        </div>
+
+        <div id="adminControls" style="display: none; margin-bottom: 20px;">
+          <a href="/admin/new-product.html" class="btn">+ Adicionar Produto</a>
+        </div>
+
+        <div id="productsCount" style="margin-bottom: 20px; color: white; font-weight: 600;"></div>
+
+        <div id="productsGrid" class="products-grid">
+          <div class="loading">Carregando produtos...</div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <div class="footer-content">
+      <p>&copy; 2025 Papeleria Santa Fé. Todos os direitos reservados.</p>
+      <p>Telefone: (31) 3532-2210 | Email: contato@papeleriasantafe.com</p>
+    </div>
+  </footer>
+
+  <script src="/scripts/auth.js"></script>
+  <script src="/scripts/cart.js"></script>
+  <script>
+    let currentCategory = 'Todos';
+    let searchQuery = '';
+
+    // Get category from URL if present
+    const urlParams = new URLSearchParams(window.location.search);
+    const categoryFromUrl = urlParams.get('category');
+    if (categoryFromUrl) {
+      currentCategory = categoryFromUrl;
+    }
+
+    // Load products
+    async function loadProducts() {
+      try {
+        let url = `/api/products?limit=100`;
+        
+        if (currentCategory && currentCategory !== 'Todos') {
+          url += `&category=${encodeURIComponent(currentCategory)}`;
+        }
+        
+        if (searchQuery) {
+          url += `&q=${encodeURIComponent(searchQuery)}`;
+        }
+
+        const response = await fetch(url);
+        const data = await response.json();
+        
+        if (data.success) {
+          displayProducts(data.data.products);
+        }
+      } catch (error) {
+        console.error('Error loading products:', error);
+        document.getElementById('productsGrid').innerHTML = 
+          '<p class="error" style="color: white;">Erro ao carregar produtos</p>';
+      }
+    }
+
+    function displayProducts(products) {
+      const container = document.getElementById('productsGrid');
+      const countElement = document.getElementById('productsCount');
+      
+      countElement.textContent = `${products.length} produto${products.length !== 1 ? 's' : ''}`;
+      
+      if (products.length === 0) {
+        container.innerHTML = '<p style="color: white;">Nenhum produto encontrado</p>';
+        return;
+      }
+
+      container.innerHTML = products.map(product => `
+        <div class="product-card">
+          <img src="${product.image_url || '/placeholder.svg?height=250&width=280'}" 
+               alt="${product.name}" 
+               class="product-image">
+          <div class="product-info">
+            <span class="product-category">${product.category_name || 'Geral'}</span>
+            <h3 class="product-name">${product.name}</h3>
+            <p class="product-description">${product.description || ''}</p>
+            <div class="product-footer">
+              <span class="product-price">R$ ${parseFloat(product.price).toFixed(2)}</span>
+              <button class="add-to-cart-btn" onclick="addToCart(${product.id}, '${product.name}', ${product.price})">
+                Adicionar ao Carrinho
+              </button>
+            </div>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    // Filter buttons
+    document.querySelectorAll('.filter-btn').forEach(btn => {
+      if (btn.dataset.category === currentCategory) {
+        btn.classList.add('active');
+      } else {
+        btn.classList.remove('active');
+      }
+
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        currentCategory = btn.dataset.category;
+        loadProducts();
+      });
+    });
+
+    // Search
+    let searchTimeout;
+    document.getElementById('searchInput').addEventListener('input', (e) => {
+      clearTimeout(searchTimeout);
+      searchTimeout = setTimeout(() => {
+        searchQuery = e.target.value;
+        loadProducts();
+      }, 500);
+    });
+
+    // Check if admin and show admin controls
+    async function checkAdminStatus() {
+      try {
+        const response = await fetch('/api/auth/me');
+        const data = await response.json();
+        
+        if (data.success && data.data.user.isAdmin) {
+          document.getElementById('adminControls').style.display = 'block';
+        }
+      } catch (error) {
+        // Not logged in or not admin
+      }
+    }
+
+    // Initialize
+    updateCartCount();
+    updateAuthUI();
+    checkAdminStatus();
+    loadProducts();
+  </script>
+</body>
+</html>

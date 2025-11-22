@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Serviços - Papeleria Santa Fé</title>
+  <meta name="description" content="Serviços oferecidos pela Papeleria Santa Fé">
+  <link rel="stylesheet" href="/styles/global.css">
+</head>
+<body>
+  <header>
+    <div class="header-content">
+      <a href="/" class="logo">
+        <div class="logo-icon">📝</div>
+        Papeleria Santa Fé
+      </a>
+      <nav id="mainNav">
+        <a href="/">Início</a>
+        <a href="/catalog.html">📦 Catálogo</a>
+        <a href="/services.html">🛠️ Serviços</a>
+        <a href="/contact.html">📞 Contato</a>
+        <a href="/cart.html">🛒 Carrinho<span class="cart-badge" id="cartCount">0</span></a>
+        <a href="/login.html" id="authLink">Entrar</a>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+    <div class="hero" style="padding: 40px 20px;">
+      <div class="container">
+        <h1>Nossos Serviços</h1>
+        <p>Soluções completas para suas necessidades</p>
+      </div>
+    </div>
+
+    <section class="products-section">
+      <div class="container">
+        <div class="services-grid">
+          <div class="service-card">
+            <h3>🖨️ Impressão</h3>
+            <p>Impressão de documentos em preto e branco ou colorido, alta qualidade</p>
+            <button class="btn" onclick="requestQuote('Impressão')">Solicitar Orçamento</button>
+          </div>
+
+          <div class="service-card">
+            <h3>📖 Encadernação</h3>
+            <p>Encadernação de documentos, TCCs, trabalhos acadêmicos</p>
+            <button class="btn" onclick="requestQuote('Encadernação')">Solicitar Orçamento</button>
+          </div>
+
+          <div class="service-card">
+            <h3>🔖 Plastificação</h3>
+            <p>Plastificação de documentos em diversos tamanhos</p>
+            <button class="btn" onclick="requestQuote('Plastificação')">Solicitar Orçamento</button>
+          </div>
+
+          <div class="service-card">
+            <h3>📱 Digitalização</h3>
+            <p>Digitalização de documentos e fotos com alta resolução</p>
+            <button class="btn" onclick="requestQuote('Digitalização')">Solicitar Orçamento</button>
+          </div>
+
+          <div class="service-card">
+            <h3>📄 Fotocópias</h3>
+            <p>Fotocópias rápidas e de qualidade para seus documentos</p>
+            <button class="btn" onclick="requestQuote('Fotocópias')">Solicitar Orçamento</button>
+          </div>
+
+          <div class="service-card">
+            <h3>🎨 Banners e Cartazes</h3>
+            <p>Impressão de banners, cartazes e material publicitário</p>
+            <button class="btn" onclick="requestQuote('Banners e Cartazes')">Solicitar Orçamento</button>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <div class="footer-content">
+      <p>&copy; 2025 Papeleria Santa Fé. Todos os direitos reservados.</p>
+      <p>Telefone: (31) 3532-2210 | Email: contato@papeleriasantafe.com</p>
+    </div>
+  </footer>
+
+  <script src="/scripts/auth.js"></script>
+  <script src="/scripts/cart.js"></script>
+  <script>
+    function requestQuote(serviceName) {
+      const message = `Olá! Gostaria de solicitar um orçamento para o serviço: ${serviceName}`;
+      const whatsappUrl = `https://wa.me/5531353222210?text=${encodeURIComponent(message)}`;
+      window.open(whatsappUrl, '_blank');
+    }
+
+    // Initialize
+    updateCartCount();
+    updateAuthUI();
+  </script>
+</body>
+</html>

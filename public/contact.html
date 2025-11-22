@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Contato - Papeleria Santa Fé</title>
+  <meta name="description" content="Entre em contato com Papeleria Santa Fé">
+  <link rel="stylesheet" href="/styles/global.css">
+</head>
+<body>
+  <header>
+    <div class="header-content">
+      <a href="/" class="logo">
+        <div class="logo-icon">📝</div>
+        Papeleria Santa Fé
+      </a>
+      <nav id="mainNav">
+        <a href="/">Início</a>
+        <a href="/catalog.html">📦 Catálogo</a>
+        <a href="/services.html">🛠️ Serviços</a>
+        <a href="/contact.html">📞 Contato</a>
+        <a href="/cart.html">🛒 Carrinho<span class="cart-badge" id="cartCount">0</span></a>
+        <a href="/login.html" id="authLink">Entrar</a>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+    <div class="hero" style="padding: 40px 20px;">
+      <div class="container">
+        <h1>Entre em Contato</h1>
+        <p>Estamos aqui para ajudar você</p>
+      </div>
+    </div>
+
+    <section class="contact-section">
+      <div class="container">
+        <form id="contactForm">
+          <div class="form-group">
+            <label for="name">Nome</label>
+            <input type="text" id="name" name="name" required>
+          </div>
+
+          <div class="form-group">
+            <label for="email">Email</label>
+            <input type="email" id="email" name="email" required>
+          </div>
+
+          <div class="form-group">
+            <label for="phone">Telefone</label>
+            <input type="tel" id="phone" name="phone">
+          </div>
+
+          <div class="form-group">
+            <label for="subject">Assunto</label>
+            <input type="text" id="subject" name="subject" required>
+          </div>
+
+          <div class="form-group">
+            <label for="message">Mensagem</label>
+            <textarea id="message" name="message" required></textarea>
+          </div>
+
+          <button type="submit" class="btn">Enviar Mensagem</button>
+        </form>
+
+        <div class="contact-info">
+          <h3>Informações de Contato</h3>
+          <p>📞 Telefone: (31) 3532-2210</p>
+          <p>📧 Email: contato@papeleriasantafe.com</p>
+          <p>📍 Endereço: Rua Santa Fé, 123 - Centro</p>
+          <p>🕒 Horário: Segunda a Sexta, 8h às 18h | Sábado, 8h às 12h</p>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <div class="footer-content">
+      <p>&copy; 2025 Papeleria Santa Fé. Todos os direitos reservados.</p>
+      <p>Telefone: (31) 3532-2210 | Email: contato@papeleriasantafe.com</p>
+    </div>
+  </footer>
+
+  <script src="/scripts/auth.js"></script>
+  <script src="/scripts/cart.js"></script>
+  <script>
+    document.getElementById('contactForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      
+      const formData = new FormData(e.target);
+      const data = {
+        name: formData.get('name'),
+        email: formData.get('email'),
+        phone: formData.get('phone'),
+        subject: formData.get('subject'),
+        message: formData.get('message')
+      };
+
+      // In a real implementation, this would send to an API endpoint
+      // For now, we'll show a success message and optionally open WhatsApp
+      const message = `Olá! Meu nome é ${data.name}.
+
+Assunto: ${data.subject}
+
+${data.message}
+
+Email: ${data.email}
+Telefone: ${data.phone || 'Não informado'}`;
+
+      const whatsappUrl = `https://wa.me/5531353222210?text=${encodeURIComponent(message)}`;
+      
+      if (confirm('Deseja enviar esta mensagem via WhatsApp?')) {
+        window.open(whatsappUrl, '_blank');
+        e.target.reset();
+      } else {
+        alert('Mensagem preparada! Em breve implementaremos o envio por email.');
+        e.target.reset();
+      }
+    });
+
+    // Initialize
+    updateCartCount();
+    updateAuthUI();
+  </script>
+</body>
+</html>

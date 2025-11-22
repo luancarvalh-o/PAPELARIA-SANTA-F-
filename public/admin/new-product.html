@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Adicionar Produto - Admin</title>
+  <link rel="stylesheet" href="/styles/global.css">
+  <style>
+    .admin-container {
+      max-width: 700px;
+      margin: 0 auto;
+      background-color: white;
+      padding: 40px;
+      border-radius: 12px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+    }
+
+    .admin-title {
+      color: var(--color-primary);
+      font-size: 28px;
+      margin-bottom: 30px;
+    }
+
+    .form-group select {
+      width: 100%;
+      padding: 12px;
+      border: 2px solid var(--color-border);
+      border-radius: 8px;
+      font-size: 16px;
+      font-family: var(--font-family);
+      background-color: white;
+    }
+
+    .image-preview {
+      width: 100%;
+      max-height: 300px;
+      object-fit: cover;
+      border-radius: 8px;
+      margin-top: 10px;
+      display: none;
+    }
+
+    .image-preview.active {
+      display: block;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="header-content">
+      <a href="/" class="logo">
+        <div class="logo-icon">📝</div>
+        Papeleria Santa Fé
+      </a>
+      <nav>
+        <a href="/">Início</a>
+        <a href="/catalog.html">📦 Catálogo</a>
+        <a href="/profile.html">Perfil</a>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+    <div class="hero" style="padding: 40px 20px;">
+      <div class="container">
+        <h1>Adicionar Novo Produto</h1>
+      </div>
+    </div>
+
+    <section style="padding: 40px 20px;">
+      <div class="admin-container">
+        <div id="message"></div>
+
+        <form id="productForm" enctype="multipart/form-data">
+          <div class="form-group">
+            <label for="name">Nome do Produto *</label>
+            <input type="text" id="name" name="name" required>
+          </div>
+
+          <div class="form-group">
+            <label for="category_id">Categoria *</label>
+            <select id="category_id" name="category_id" required>
+              <option value="">Selecione uma categoria</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="description">Descrição</label>
+            <textarea id="description" name="description"></textarea>
+          </div>
+
+          <div class="form-group">
+            <label for="price">Preço (R$) *</label>
+            <input type="number" id="price" name="price" step="0.01" min="0" required>
+          </div>
+
+          <div class="form-group">
+            <label for="stock">Estoque *</label>
+            <input type="number" id="stock" name="stock" min="0" value="0" required>
+          </div>
+
+          <div class="form-group">
+            <label for="image">Imagem do Produto</label>
+            <input type="file" id="image" name="image" accept="image/*">
+            <img id="imagePreview" class="image-preview" alt="Preview">
+          </div>
+
+          <div class="button-group" style="display: flex; gap: 10px; margin-top: 20px;">
+            <button type="submit" class="btn" style="flex: 1;">Adicionar Produto</button>
+            <a href="/catalog.html" class="btn btn-outline" style="flex: 1; text-align: center; text-decoration: none; display: flex; align-items: center; justify-content: center;">Cancelar</a>
+          </div>
+        </form>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <div class="footer-content">
+      <p>&copy; 2025 Papeleria Santa Fé. Todos os direitos reservados.</p>
+    </div>
+  </footer>
+
+  <script>
+    // Check if user is admin
+    async function checkAdmin() {
+      try {
+        const response = await fetch('/api/auth/me');
+        const data = await response.json();
+        
+        if (!data.success || !data.data.user.isAdmin) {
+          alert('Acesso negado. Apenas administradores.');
+          window.location.href = '/';
+        }
+      } catch (error) {
+        window.location.href = '/login.html';
+      }
+    }
+
+    // Load categories
+    async function loadCategories() {
+      try {
+        const response = await fetch('/api/categories');
+        const data = await response.json();
+        
+        if (data.success) {
+          const select = document.getElementById('category_id');
+          data.data.categories.forEach(cat => {
+            const option = document.createElement('option');
+            option.value = cat.id;
+            option.textContent = cat.name;
+            select.appendChild(option);
+          });
+        }
+      } catch (error) {
+        console.error('Error loading categories:', error);
+      }
+    }
+
+    // Image preview
+    document.getElementById('image').addEventListener('change', (e) => {
+      const file = e.target.files[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          const preview = document.getElementById('imagePreview');
+          preview.src = e.target.result;
+          preview.classList.add('active');
+        };
+        reader.readAsDataURL(file);
+      }
+    });
+
+    // Submit form
+    document.getElementById('productForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      const formData = new FormData(e.target);
+
+      try {
+        const response = await fetch('/api/products', {
+          method: 'POST',
+          body: formData
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+          showMessage('Produto adicionado com sucesso!');
+          setTimeout(() => {
+            window.location.href = '/catalog.html';
+          }, 1500);
+        } else {
+          showMessage(data.error || 'Erro ao adicionar produto', true);
+        }
+      } catch (error) {
+        showMessage('Erro ao conectar com o servidor', true);
+      }
+    });
+
+    function showMessage(message, isError = false) {
+      const element = document.getElementById('message');
+      element.innerHTML = `<div class="message ${isError ? 'error' : 'success'}">${message}</div>`;
+      setTimeout(() => {
+        element.innerHTML = '';
+      }, 5000);
+    }
+
+    // Initialize
+    checkAdmin();
+    loadCategories();
+  </script>
+</body>
+</html>

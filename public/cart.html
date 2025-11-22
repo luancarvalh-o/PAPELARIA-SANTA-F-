@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Carrinho - Papeleria Santa Fé</title>
+  <meta name="description" content="Seu carrinho de compras Papeleria Santa Fé">
+  <link rel="stylesheet" href="/styles/global.css">
+  <style>
+    .cart-container {
+      background-color: white;
+      padding: 40px;
+      border-radius: 12px;
+      max-width: 900px;
+      margin: 0 auto;
+    }
+
+    .cart-title {
+      color: var(--color-primary);
+      font-size: 32px;
+      margin-bottom: 30px;
+    }
+
+    .cart-item {
+      background-color: white;
+      border: 2px solid var(--color-border);
+      border-radius: 12px;
+      padding: 20px;
+      margin-bottom: 15px;
+      display: flex;
+      align-items: center;
+      gap: 20px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    }
+
+    .cart-item-image {
+      width: 80px;
+      height: 80px;
+      object-fit: cover;
+      border-radius: 8px;
+      background-color: var(--color-background);
+    }
+
+    .cart-item-info {
+      flex: 1;
+    }
+
+    .cart-item-name {
+      font-size: 18px;
+      font-weight: 600;
+      color: var(--color-text);
+      margin-bottom: 5px;
+    }
+
+    .cart-item-category {
+      font-size: 14px;
+      color: var(--color-text-light);
+    }
+
+    .quantity-controls {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+    }
+
+    .quantity-btn {
+      width: 32px;
+      height: 32px;
+      border: 2px solid var(--color-border);
+      background-color: white;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: 600;
+      transition: all 0.2s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .quantity-btn:hover {
+      background-color: var(--color-secondary);
+      color: white;
+      border-color: var(--color-secondary);
+    }
+
+    .quantity-display {
+      font-size: 18px;
+      font-weight: 600;
+      min-width: 30px;
+      text-align: center;
+    }
+
+    .cart-item-price {
+      font-size: 20px;
+      font-weight: 700;
+      color: var(--color-secondary);
+      min-width: 100px;
+      text-align: right;
+    }
+
+    .remove-btn {
+      background-color: var(--color-error);
+      color: white;
+      border: none;
+      padding: 8px 16px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: 600;
+      transition: opacity 0.2s;
+    }
+
+    .remove-btn:hover {
+      opacity: 0.8;
+    }
+
+    .cart-summary {
+      background-color: var(--color-background);
+      padding: 25px;
+      border-radius: 12px;
+      margin-top: 30px;
+    }
+
+    .summary-row {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 15px;
+      font-size: 16px;
+    }
+
+    .summary-row.total {
+      font-size: 24px;
+      font-weight: 700;
+      color: var(--color-primary);
+      padding-top: 15px;
+      border-top: 2px solid var(--color-border);
+    }
+
+    .cart-actions {
+      display: flex;
+      gap: 15px;
+      margin-top: 25px;
+    }
+
+    .cart-actions .btn {
+      flex: 1;
+    }
+
+    .btn-outline {
+      background-color: white;
+      color: var(--color-primary);
+      border: 2px solid var(--color-primary);
+    }
+
+    .btn-outline:hover {
+      background-color: var(--color-primary);
+      color: white;
+    }
+
+    .empty-cart {
+      text-align: center;
+      padding: 60px 20px;
+      color: var(--color-text-light);
+    }
+
+    .empty-cart-icon {
+      font-size: 64px;
+      margin-bottom: 20px;
+    }
+
+    @media (max-width: 768px) {
+      .cart-item {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+
+      .cart-item-price {
+        text-align: left;
+      }
+
+      .cart-actions {
+        flex-direction: column;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="header-content">
+      <a href="/" class="logo">
+        <div class="logo-icon">📝</div>
+        Papeleria Santa Fé
+      </a>
+      <nav id="mainNav">
+        <a href="/">Início</a>
+        <a href="/catalog.html">📦 Catálogo</a>
+        <a href="/services.html">🛠️ Serviços</a>
+        <a href="/contact.html">📞 Contato</a>
+        <a href="/cart.html">🛒 Carrinho<span class="cart-badge" id="cartCount">0</span></a>
+        <a href="/login.html" id="authLink">Entrar</a>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+    <div class="hero" style="padding: 40px 20px;">
+      <div class="container">
+        <h1>Meu Carrinho</h1>
+      </div>
+    </div>
+
+    <section style="padding: 40px 20px;">
+      <div class="cart-container" id="cartContainer">
+        <!-- Cart items will be loaded here -->
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <div class="footer-content">
+      <p>&copy; 2025 Papeleria Santa Fé. Todos os direitos reservados.</p>
+      <p>Telefone: (31) 3532-2210 | Email: contato@papeleriasantafe.com</p>
+    </div>
+  </footer>
+
+  <script src="/scripts/auth.js"></script>
+  <script src="/scripts/cart.js"></script>
+  <script>
+    async function loadCart() {
+      const container = document.getElementById('cartContainer');
+      const cart = getCart();
+
+      if (cart.length === 0) {
+        container.innerHTML = `
+          <div class="empty-cart">
+            <div class="empty-cart-icon">🛒</div>
+            <h2>Seu carrinho está vazio</h2>
+            <p>Adicione produtos para começar sua compra</p>
+            <a href="/catalog.html" class="btn" style="margin-top: 20px; display: inline-block;">
+              Ver Catálogo
+            </a>
+          </div>
+        `;
+        return;
+      }
+
+      // Fetch product details for images
+      const productIds = cart.map(item => item.productId);
+      let productsData = {};
+      
+      try {
+        const response = await fetch('/api/products');
+        const data = await response.json();
+        if (data.success) {
+          data.data.products.forEach(p => {
+            productsData[p.id] = p;
+          });
+        }
+      } catch (error) {
+        console.error('Error loading product details:', error);
+      }
+
+      const subtotal = getCartTotal();
+      const shipping = 0; // Free shipping
+      const total = subtotal + shipping;
+
+      container.innerHTML = `
+        <h2 class="cart-title">Resumo do Pedido</h2>
+        
+        <div id="cartItems">
+          ${cart.map(item => {
+            const product = productsData[item.productId];
+            const itemTotal = item.price * item.quantity;
+            
+            return `
+              <div class="cart-item">
+                <img src="${product?.image_url || '/placeholder.svg?height=80&width=80'}" 
+                     alt="${item.name}" 
+                     class="cart-item-image">
+                <div class="cart-item-info">
+                  <div class="cart-item-name">${item.name}</div>
+                  <div class="cart-item-category">${product?.category_name || 'Escritório'}</div>
+                </div>
+                <div class="quantity-controls">
+                  <button class="quantity-btn" onclick="updateQuantity(${item.productId}, -1)">-</button>
+                  <span class="quantity-display">${item.quantity}</span>
+                  <button class="quantity-btn" onclick="updateQuantity(${item.productId}, 1)">+</button>
+                </div>
+                <div class="cart-item-price">R$ ${itemTotal.toFixed(2)}</div>
+                <button class="remove-btn" onclick="removeFromCart(${item.productId})">🗑️</button>
+              </div>
+            `;
+          }).join('')}
+        </div>
+
+        <div class="cart-summary">
+          <div class="summary-row">
+            <span>Subtotal</span>
+            <span>R$ ${subtotal.toFixed(2)}</span>
+          </div>
+          <div class="summary-row">
+            <span>Frete</span>
+            <span style="color: var(--color-success);">Grátis</span>
+          </div>
+          <div class="summary-row total">
+            <span>Total</span>
+            <span>R$ ${total.toFixed(2)}</span>
+          </div>
+
+          <div class="cart-actions">
+            <button class="btn btn-outline" onclick="clearCart()">Limpar Carrinho</button>
+            <button class="btn" onclick="finalizePurchase()">Finalizar Compra</button>
+          </div>
+        </div>
+      `;
+    }
+
+    function finalizePurchase() {
+      const cart = getCart();
+      
+      if (cart.length === 0) {
+        alert('Seu carrinho está vazio');
+        return;
+      }
+
+      // Build WhatsApp message
+      let message = 'Olá! Gostaria de finalizar minha compra. Seguem os itens:\n\n';
+      
+      cart.forEach(item => {
+        const itemTotal = item.price * item.quantity;
+        message += `• ${item.name} (qtd ${item.quantity}) - R$ ${itemTotal.toFixed(2)}\n`;
+      });
+
+      const total = getCartTotal();
+      message += `\nTotal: R$ ${total.toFixed(2)}`;
+
+      // Open WhatsApp
+      const whatsappUrl = `https://wa.me/5531353222210?text=${encodeURIComponent(message)}`;
+      window.open(whatsappUrl, '_blank');
+
+      // Optionally save order to database
+      saveOrderToDatabase(cart, total);
+    }
+
+    async function saveOrderToDatabase(cart, total) {
+      try {
+        const items = cart.map(item => ({
+          productId: item.productId,
+          quantity: item.quantity,
+          price: item.price
+        }));
+
+        const response = await fetch('/api/orders', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ items, total })
+        });
+
+        const data = await response.json();
+        
+        if (data.success) {
+          console.log('Order saved successfully:', data.data.order.id);
+        }
+      } catch (error) {
+        console.error('Error saving order:', error);
+        // Don't block the WhatsApp flow if order save fails
+      }
+    }
+
+    // Initialize
+    updateCartCount();
+    updateAuthUI();
+    loadCart();
+  </script>
+</body>
+</html>

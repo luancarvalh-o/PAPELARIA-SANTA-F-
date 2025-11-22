@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Meu Perfil - Papeleria Santa Fé</title>
+  <link rel="stylesheet" href="/styles/global.css">
+  <style>
+    .profile-container {
+      max-width: 800px;
+      margin: 0 auto;
+      background-color: white;
+      padding: 40px;
+      border-radius: 12px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+    }
+
+    .profile-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 30px;
+      padding-bottom: 20px;
+      border-bottom: 2px solid var(--color-border);
+    }
+
+    .profile-title {
+      color: var(--color-primary);
+      font-size: 28px;
+    }
+
+    .profile-section {
+      margin-bottom: 30px;
+    }
+
+    .profile-section h3 {
+      color: var(--color-primary);
+      font-size: 20px;
+      margin-bottom: 15px;
+    }
+
+    .info-row {
+      display: flex;
+      padding: 12px 0;
+      border-bottom: 1px solid var(--color-border);
+    }
+
+    .info-label {
+      font-weight: 600;
+      width: 150px;
+      color: var(--color-text);
+    }
+
+    .info-value {
+      flex: 1;
+      color: var(--color-text-light);
+    }
+
+    .admin-badge {
+      background-color: var(--color-secondary);
+      color: white;
+      padding: 4px 12px;
+      border-radius: 20px;
+      font-size: 14px;
+      font-weight: 600;
+    }
+
+    .edit-form {
+      display: none;
+      margin-top: 20px;
+    }
+
+    .edit-form.active {
+      display: block;
+    }
+
+    .button-group {
+      display: flex;
+      gap: 10px;
+      margin-top: 20px;
+    }
+
+    .btn-outline {
+      background-color: white;
+      color: var(--color-primary);
+      border: 2px solid var(--color-primary);
+    }
+
+    .btn-outline:hover {
+      background-color: var(--color-primary);
+      color: white;
+    }
+
+    .btn-danger {
+      background-color: var(--color-error);
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="header-content">
+      <a href="/" class="logo">
+        <div class="logo-icon">📝</div>
+        Papeleria Santa Fé
+      </a>
+      <nav id="mainNav">
+        <a href="/">Início</a>
+        <a href="/catalog.html">📦 Catálogo</a>
+        <a href="/services.html">🛠️ Serviços</a>
+        <a href="/contact.html">📞 Contato</a>
+        <a href="/cart.html">🛒 Carrinho<span class="cart-badge" id="cartCount">0</span></a>
+        <a href="/profile.html" id="authLink">Perfil</a>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+    <div class="hero" style="padding: 40px 20px;">
+      <div class="container">
+        <h1>Meu Perfil</h1>
+      </div>
+    </div>
+
+    <section style="padding: 40px 20px;">
+      <div class="profile-container" id="profileContainer">
+        <div class="loading">Carregando perfil...</div>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <div class="footer-content">
+      <p>&copy; 2025 Papeleria Santa Fé. Todos os direitos reservados.</p>
+      <p>Telefone: (31) 3532-2210 | Email: contato@papeleriasantafe.com</p>
+    </div>
+  </footer>
+
+  <script src="/scripts/auth.js"></script>
+  <script src="/scripts/cart.js"></script>
+  <script>
+    let currentUser = null;
+
+    async function loadProfile() {
+      try {
+        const response = await fetch('/api/users/me');
+        const data = await response.json();
+
+        if (!data.success) {
+          window.location.href = '/login.html';
+          return;
+        }
+
+        currentUser = data.data.user;
+        displayProfile(currentUser);
+      } catch (error) {
+        console.error('Error loading profile:', error);
+        window.location.href = '/login.html';
+      }
+    }
+
+    function displayProfile(user) {
+      const container = document.getElementById('profileContainer');
+
+      container.innerHTML = `
+        <div class="profile-header">
+          <h2 class="profile-title">Informações da Conta</h2>
+          ${user.isAdmin ? '<span class="admin-badge">ADMIN</span>' : ''}
+        </div>
+
+        <div id="profileMessage"></div>
+
+        <div class="profile-section" id="infoSection">
+          <div class="info-row">
+            <span class="info-label">Nome:</span>
+            <span class="info-value">${user.name}</span>
+          </div>
+          <div class="info-row">
+            <span class="info-label">Email:</span>
+            <span class="info-value">${user.email}</span>
+          </div>
+          <div class="info-row">
+            <span class="info-label">Telefone:</span>
+            <span class="info-value">${user.phone || 'Não informado'}</span>
+          </div>
+          <div class="info-row">
+            <span class="info-label">Endereço:</span>
+            <span class="info-value">${user.address || 'Não informado'}</span>
+          </div>
+
+          <div class="button-group">
+            <button class="btn" onclick="showEditForm()">Editar Perfil</button>
+            <button class="btn btn-danger" onclick="logout()">Sair</button>
+          </div>
+        </div>
+
+        <div class="edit-form" id="editForm">
+          <h3>Editar Informações</h3>
+          <form id="updateProfileForm">
+            <div class="form-group">
+              <label for="editName">Nome</label>
+              <input type="text" id="editName" value="${user.name}" required>
+            </div>
+
+            <div class="form-group">
+              <label for="editEmail">Email</label>
+              <input type="email" id="editEmail" value="${user.email}" required>
+            </div>
+
+            <div class="form-group">
+              <label for="editPhone">Telefone</label>
+              <input type="tel" id="editPhone" value="${user.phone || ''}">
+            </div>
+
+            <div class="form-group">
+              <label for="editAddress">Endereço</label>
+              <input type="text" id="editAddress" value="${user.address || ''}">
+            </div>
+
+            <h3 style="margin-top: 30px;">Alterar Senha (opcional)</h3>
+
+            <div class="form-group">
+              <label for="currentPassword">Senha Atual</label>
+              <input type="password" id="currentPassword">
+            </div>
+
+            <div class="form-group">
+              <label for="newPassword">Nova Senha</label>
+              <input type="password" id="newPassword" minlength="6">
+            </div>
+
+            <div class="button-group">
+              <button type="submit" class="btn">Salvar Alterações</button>
+              <button type="button" class="btn btn-outline" onclick="hideEditForm()">Cancelar</button>
+            </div>
+          </form>
+        </div>
+      `;
+
+      // Add form submit handler
+      document.getElementById('updateProfileForm').addEventListener('submit', handleUpdateProfile);
+    }
+
+    function showEditForm() {
+      document.getElementById('infoSection').style.display = 'none';
+      document.getElementById('editForm').classList.add('active');
+    }
+
+    function hideEditForm() {
+      document.getElementById('infoSection').style.display = 'block';
+      document.getElementById('editForm').classList.remove('active');
+    }
+
+    async function handleUpdateProfile(e) {
+      e.preventDefault();
+
+      const name = document.getElementById('editName').value;
+      const email = document.getElementById('editEmail').value;
+      const phone = document.getElementById('editPhone').value;
+      const address = document.getElementById('editAddress').value;
+      const currentPassword = document.getElementById('currentPassword').value;
+      const newPassword = document.getElementById('newPassword').value;
+
+      const updateData = {
+        name,
+        email,
+        phone,
+        address
+      };
+
+      if (newPassword) {
+        if (!currentPassword) {
+          showMessage('Senha atual é obrigatória para alterar senha', true);
+          return;
+        }
+        updateData.currentPassword = currentPassword;
+        updateData.newPassword = newPassword;
+      }
+
+      try {
+        const response = await fetch(`/api/users/${currentUser.id}`, {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(updateData)
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+          showMessage('Perfil atualizado com sucesso!');
+          setTimeout(() => {
+            loadProfile();
+            hideEditForm();
+          }, 1500);
+        } else {
+          showMessage(data.error || 'Erro ao atualizar perfil', true);
+        }
+      } catch (error) {
+        showMessage('Erro ao conectar com o servidor', true);
+      }
+    }
+
+    function showMessage(message, isError = false) {
+      const element = document.getElementById('profileMessage');
+      element.innerHTML = `<div class="message ${isError ? 'error' : 'success'}">${message}</div>`;
+      setTimeout(() => {
+        element.innerHTML = '';
+      }, 5000);
+    }
+
+    // Initialize
+    updateCartCount();
+    updateAuthUI();
+    loadProfile();
+  </script>
+</body>
+</html>
