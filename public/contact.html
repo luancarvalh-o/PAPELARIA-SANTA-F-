@@ -108,7 +108,7 @@ ${data.message}
 Email: ${data.email}
 Telefone: ${data.phone || 'Não informado'}`;
 
-      const whatsappUrl = `https://wa.me/5531353222210?text=${encodeURIComponent(message)}`;
+      const whatsappUrl = `https://wa.me/553135322210?text=${encodeURIComponent(message)}`;
       
       if (confirm('Deseja enviar esta mensagem via WhatsApp?')) {
         window.open(whatsappUrl, '_blank');
