@@ -38,6 +38,13 @@ app.use(
 app.use(express.json())
 app.use(express.urlencoded({ extended: true }))
 
+// Garantir UTF-8 nas respostas JSON
+app.use((req, res, next) => {
+  res.setHeader("Content-Type", "application/json; charset=utf-8");
+  next();
+});
+
+
 // Session configuration
 app.use(
   session({
