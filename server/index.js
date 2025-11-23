@@ -61,6 +61,13 @@ app.use(
 app.use(express.static("public"))
 app.use("/uploads", express.static("uploads"))
 
+// Garantir UTF-8 somente para rotas da API
+app.use("/api", (req, res, next) => {
+  res.setHeader("Content-Type", "application/json; charset=UTF-8");
+  next();
+});
+
+
 // API Routes
 app.use("/api/auth", authRoutes)
 app.use("/api/users", userRoutes)
