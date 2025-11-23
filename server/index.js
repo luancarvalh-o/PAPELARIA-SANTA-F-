@@ -15,11 +15,6 @@ const productRoutes = require("./routes/products")
 const orderRoutes = require("./routes/orders")
 
 const app = express()
-// Forçar UTF-8 em todas as respostas JSON
-app.use((req, res, next) => {
-  res.setHeader("Content-Type", "application/json; charset=UTF-8");
-  next();
-});
 
 const PORT = process.env.PORT || 3000
 
