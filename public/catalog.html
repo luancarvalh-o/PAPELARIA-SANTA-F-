@@ -110,35 +110,47 @@
     }
 
     function displayProducts(products) {
-      const container = document.getElementById('productsGrid');
-      const countElement = document.getElementById('productsCount');
-      
-      countElement.textContent = `${products.length} produto${products.length !== 1 ? 's' : ''}`;
-      
-      if (products.length === 0) {
-        container.innerHTML = '<p style="color: white;">Nenhum produto encontrado</p>';
-        return;
-      }
+  const container = document.getElementById('productsGrid');
+  const countElement = document.getElementById('productsCount');
 
-      container.innerHTML = products.map(product => `
-        <div class="product-card">
-          <img src="${product.image_url || '/placeholder.svg?height=250&width=280'}" 
-               alt="${product.name}" 
-               class="product-image">
-          <div class="product-info">
-            <span class="product-category">${product.category_name || 'Geral'}</span>
-            <h3 class="product-name">${product.name}</h3>
-            <p class="product-description">${product.description || ''}</p>
-            <div class="product-footer">
-              <span class="product-price">R$ ${parseFloat(product.price).toFixed(2)}</span>
-              <button class="add-to-cart-btn" onclick="addToCart(${product.id}, '${product.name}', ${product.price})">
-                Adicionar ao Carrinho
-              </button>
-            </div>
-          </div>
+  countElement.textContent = `${products.length} produto${products.length !== 1 ? 's' : ''}`;
+
+  if (products.length === 0) {
+    container.innerHTML = '<p style="color: white;">Nenhum produto encontrado</p>';
+    return;
+  }
+
+  container.innerHTML = products.map(product => `
+    <div class="product-card">
+      <img src="${product.image_url || '/placeholder.svg?height=250&width=280'}" 
+           alt="${product.name}" 
+           class="product-image">
+
+      <div class="product-info">
+        <span class="product-category">${product.category_name || 'Geral'}</span>
+        <h3 class="product-name">${product.name}</h3>
+        <p class="product-description">${product.description || ''}</p>
+
+        <div class="product-footer">
+          <span class="product-price">R$ ${parseFloat(product.price).toFixed(2)}</span>
+
+          <button class="add-to-cart-btn"
+                  onclick="addToCart(${product.id}, '${product.name}', ${product.price})">
+            Adicionar ao Carrinho
+          </button>
+
+          ${window.currentUser?.isAdmin ? `
+            <button class="delete-btn" onclick="deleteProduct(${product.id})"
+                    style="background:#d9534f;color:white;border:none;padding:6px 10px;border-radius:4px;margin-left:8px;cursor:pointer;">
+              🗑️ Remover
+            </button>
+          ` : ""}
         </div>
-      `).join('');
-    }
+      </div>
+    </div>
+  `).join('');
+}
+
 
     // Filter buttons
     document.querySelectorAll('.filter-btn').forEach(btn => {
@@ -185,6 +197,25 @@
     updateAuthUI();
     checkAdminStatus();
     loadProducts();
+
+    async function deleteProduct(id) {
+  if (!confirm("Tem certeza que deseja excluir este produto?")) return;
+
+  const res = await fetch(`/api/products/${id}`, {
+    method: 'DELETE',
+    credentials: 'include'
+  });
+
+  const data = await res.json();
+
+  if (data.success) {
+    alert("Produto removido!");
+    loadProducts(); // Recarrega catálogo
+  } else {
+    alert("Erro ao remover: " + data.error);
+  }
+}
+
   </script>
 </body>
 </html>

@@ -18,6 +18,9 @@ async function updateAuthUI() {
   const authLink = document.getElementById("authLink")
   const user = await checkAuth()
 
+  // 🔥 IMPORTANTE: tornar o usuário global
+  window.currentUser = user
+
   if (user) {
     authLink.textContent = user.name
     authLink.href = "/profile.html"
