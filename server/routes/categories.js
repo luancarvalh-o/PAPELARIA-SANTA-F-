@@ -8,7 +8,7 @@ const router = express.Router();
 router.get("/", async (req, res) => {
   try {
     const result = await pool.query(
-      `SELECT * FROM categories ORDER BY name COLLATE "C.UTF-8"`
+      `SELECT * FROM categories ORDER BY name COLLATE "C.utf8"`
     );
 
     res.json({
