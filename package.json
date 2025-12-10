@@ -12,7 +12,6 @@
     "server": "node server/index.js",
     "server:dev": "nodemon server/index.js",
     "start": "node server/index.js"
-
   },
   "dependencies": {
     "@hookform/resolvers": "^3.10.0",
@@ -48,6 +47,7 @@
     "bcrypt": "^5.1.0",
     "bcryptjs": "latest",
     "class-variance-authority": "^0.7.1",
+    "cloudinary": "^2.8.0",
     "clsx": "^2.1.1",
     "cmdk": "1.0.4",
     "connect-pg-simple": "latest",
@@ -60,6 +60,7 @@
     "input-otp": "1.4.1",
     "lucide-react": "^0.454.0",
     "multer": "latest",
+    "multer-storage-cloudinary": "^4.0.0",
     "next": "16.0.3",
     "next-themes": "^0.4.6",
     "path": "latest",

@@ -1,38 +1,10 @@
 // Product routes
 const express = require("express")
-const multer = require("multer")
-const path = require("path")
 const pool = require("../db")
 const { ensureAdmin } = require("../middleware/auth")
-
 const router = express.Router()
+const upload = require("../middleware/upload");
 
-// Configure multer for image uploads
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    cb(null, "uploads/")
-  },
-  filename: (req, file, cb) => {
-    const uniqueSuffix = Date.now() + "-" + Math.round(Math.random() * 1e9)
-    cb(null, "product-" + uniqueSuffix + path.extname(file.originalname))
-  },
-})
-
-const upload = multer({
-  storage: storage,
-  limits: { fileSize: 5 * 1024 * 1024 }, // 5MB limit
-  fileFilter: (req, file, cb) => {
-    const allowedTypes = /jpeg|jpg|png|gif|webp/
-    const extname = allowedTypes.test(path.extname(file.originalname).toLowerCase())
-    const mimetype = allowedTypes.test(file.mimetype)
-
-    if (mimetype && extname) {
-      return cb(null, true)
-    } else {
-      cb(new Error("Apenas imagens são permitidas"))
-    }
-  },
-})
 
 // Get all products with optional filters
 router.get("/", async (req, res) => {
@@ -108,7 +80,7 @@ router.post("/", ensureAdmin, upload.single("image"), async (req, res) => {
       })
     }
 
-    const imageUrl = req.file ? `/uploads/${req.file.filename}` : null
+const imageUrl = req.file ? req.file.path : null;
 
     const result = await pool.query(
       `INSERT INTO products (name, category_id, description, price, stock, image_url)
@@ -138,7 +110,7 @@ router.put("/:id", ensureAdmin, upload.single("image"), async (req, res) => {
 
     if (req.file) {
       query += `, image_url = $6 WHERE id = $7`
-      values.push(`/uploads/${req.file.filename}`, id)
+values.push(req.file.path, id)
     } else {
       query += ` WHERE id = $6`
       values.push(id)
